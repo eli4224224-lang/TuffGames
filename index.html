@@ -1,0 +1,225 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 Tuff Games Hub</title>
+<style>
+body {
+  font-family: 'Comic Sans MS', Arial, sans-serif;
+  background: linear-gradient(120deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  scroll-behavior: smooth;
+}
+
+@keyframes gradientBG {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+h1 {
+  margin: 20px;
+  font-size: 3em;
+  text-shadow: 2px 2px #333;
+}
+
+#searchBar {
+  padding:10px;
+  width:80%;
+  max-width:400px;
+  margin-bottom:20px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:25px;
+  padding:20px;
+  justify-items:center;
+}
+
+.game-thumb {
+  background: rgba(0,0,0,0.5);
+  padding:20px;
+  border-radius:12px;
+  cursor:pointer;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:140px;
+  min-height:100px;
+  justify-content:center;
+}
+
+.game-thumb:hover {
+  transform: scale(1.1);
+  background: rgba(0,0,0,0.7);
+  box-shadow: 0 0 15px #fff;
+}
+
+.game-thumb h3 {
+  font-size:1em;
+  margin:0;
+  color:#fff;
+  text-shadow:1px 1px #333;
+  text-align:center;
+}
+
+.no-results {
+  font-size: 1.2em;
+  color: #ffdddd;
+  margin-top: 20px;
+  display:none;
+}
+
+.overlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+  flex-direction:column;
+}
+
+.overlay iframe {
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:0;
+  max-width:100%;
+  max-height:100%;
+}
+
+.close-btn {
+  background:#ff4444;
+  border:none;
+  color:white;
+  padding:12px 25px;
+  margin-bottom:10px;
+  cursor:pointer;
+  border-radius:12px;
+  font-size:18px;
+  font-weight:bold;
+  text-shadow:1px 1px #000;
+}
+
+#topBtn {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:10px 15px;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
+  background:#ff4444;
+  color:#fff;
+  cursor:pointer;
+  display:none;
+}
+</style>
+</head>
+<body>
+
+<h1>🎮 Tuff Games Hub</h1>
+<input type="text" id="searchBar" placeholder="Search games...">
+<div class="no-results" id="noResults">No results found 😢</div>
+
+<div class="grid">
+  <div class="game-thumb" data-src="https://chromedino.com/"><h3>Dino Game</h3></div>
+  <div class="game-thumb" data-src="https://flappybird.io/"><h3>Flappy Bird</h3></div>
+  <div class="game-thumb" data-src="https://funhtml5games.com?play=pacman"><h3>Pac-Man</h3></div>
+  <div class="game-thumb" data-src="https://pong-2.com/"><h3>Pong</h3></div>
+  <div class="game-thumb" data-src="https://geometrydashlite.io/"><h3>Geometry Dash</h3></div>
+  <div class="game-thumb" data-src="https://amongusplay.online/"><h3>Among Us</h3></div>
+  <div class="game-thumb" data-src="https://supermarioemulator.com/mario.php"><h3>Mario</h3></div>
+  <div class="game-thumb" data-src="https://hexgl.bkcore.com/play/"><h3>HexGL</h3></div>
+  <div class="game-thumb" data-src="https://funhtml5games.com?play=angrybirds"><h3>Angry Birds</h3></div>
+  <div class="game-thumb" data-src="https://papergames.io/en/connect4"><h3>Connect 4</h3></div>
+  <div class="game-thumb" data-src="https://krunker.io/"><h3>Krunker</h3></div>
+  <div class="game-thumb" data-src="https://classroom-6x.org/game/fnaf/"><h3>FNAF</h3></div>
+  <div class="game-thumb" data-src="https://archive.org/embed/papassushiria_101_202311"><h3>Papa's Sushiria</h3></div>
+  
+  <!-- ✅ Updated Blood Money Embed from 1games.io -->
+  <div class="game-thumb" data-src="https://1games.io/embed/blood-money">
+    <h3>Blood Money</h3>
+  </div>
+</div>
+
+<!-- Info message under grid -->
+<p style="margin:20px; font-size:1.2em; color:#fff; text-shadow:1px 1px #000;">
+  Use the search bar when you click on “FNAF” to find an extensive catalog of games!
+</p>
+
+<div class="overlay" id="overlay">
+  <button class="close-btn" id="closeBtn">Close</button>
+  <iframe id="game-frame"></iframe>
+</div>
+
+<button id="topBtn">⬆ Top</button>
+
+<script>
+const thumbs=document.querySelectorAll('.game-thumb');
+const overlay=document.getElementById('overlay');
+const iframe=document.getElementById('game-frame');
+const closeBtn=document.getElementById('closeBtn');
+const searchBar=document.getElementById('searchBar');
+const topBtn=document.getElementById('topBtn');
+const noResults=document.getElementById('noResults');
+
+thumbs.forEach(thumb=>{
+  thumb.addEventListener('click',()=>{
+    iframe.src=thumb.getAttribute('data-src');
+    overlay.style.display='flex';
+  });
+});
+
+closeBtn.addEventListener('click',()=>{
+  iframe.src='';
+  overlay.style.display='none';
+});
+
+overlay.addEventListener('click', e=>{
+  if(e.target===overlay){
+    iframe.src='';
+    overlay.style.display='none';
+  }
+});
+
+searchBar.addEventListener('input',()=>{
+  const query=searchBar.value.toLowerCase();
+  let anyVisible=false;
+  thumbs.forEach(thumb=>{
+    const title=thumb.querySelector('h3').textContent.toLowerCase();
+    const match=title.includes(query);
+    thumb.style.display=match?'flex':'none';
+    if(match) anyVisible=true;
+  });
+  noResults.style.display=anyVisible?'none':'block';
+});
+
+window.addEventListener('scroll',()=>{
+  topBtn.style.display=window.scrollY>300?'block':'none';
+});
+
+topBtn.addEventListener('click',()=>{
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+
+</body>
+</html>
